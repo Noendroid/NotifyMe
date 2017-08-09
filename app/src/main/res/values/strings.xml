@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">NotifyMe</string>
+    <string name="list_item_switch_text">"item"</string>
+    <string name="list_item_">"16dp"</string>
+    <string name="text_size_h1">"30dp"</string>
+    <string name="text_size_h2">"20dp"</string>
+    <string name="title_activity_settings">Settings</string>
+</resources>
