@@ -26,7 +26,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/home_title"
         android:layout_centerHorizontal="true"
-        android:theme="@style/SwitchTheme" />
+        android:theme="@style/SwitchTheme"
+        android:visibility="invisible"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
