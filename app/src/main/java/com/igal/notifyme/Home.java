@@ -1,14 +1,10 @@
 package com.igal.notifyme;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.location.Location;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -16,14 +12,16 @@ import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import java.io.Console;
-
 public class Home extends AppCompatActivity {
     public static final int MY_PERMISSION_REQUEST_LOCATION = 1;
+    public static final String APPLICATION_PREFERENCES = "application_preferences";
+    public static final String FIRST_TIME_RUN = "First_time_run";
+    public static final String NOTIFICATION_TOGGLE = "notification_toggle";
 
     FloatingActionButton home_settings;
     RelativeLayout home_body;
     Switch home_switch;
+    TextView home_title;
     Handler handler = new Handler();
     Thread background_thread;
 
@@ -42,6 +40,17 @@ public class Home extends AppCompatActivity {
         setContentView(R.layout.activity_home);
         background_thread = new Thread();
 
+        final SharedPreferences prefs = getSharedPreferences(APPLICATION_PREFERENCES, MODE_PRIVATE);
+        boolean firstRun = prefs.getBoolean(FIRST_TIME_RUN, true);
+        //    is it the first time the app is running
+        //      => returns true if it is
+        if (firstRun) {//   if it is the first time the app running
+            SharedPreferences.Editor editor = prefs.edit();
+            toggle_notification();
+            editor.putBoolean(FIRST_TIME_RUN, false);
+            editor.apply();// apply the changes
+        }
+
         home_settings = (FloatingActionButton) findViewById(R.id.fab);
         home_settings.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,15 +62,24 @@ public class Home extends AppCompatActivity {
 
         home_body = (RelativeLayout) findViewById(R.id.home_body);
         home_switch = (Switch) findViewById(R.id.home_toggle);
-        if(home_switch.isChecked()){
+        home_title = (TextView) findViewById(R.id.home_title);
+
+        home_switch.setChecked(get_notification_state());
+
+        if (home_switch.isChecked()) {
             home_body.setBackgroundColor(Color.argb(220, R_ON, G_ON, B_ON));
+            home_title.setText("ON");
         } else {
             home_body.setBackgroundColor(Color.argb(220, R_OFF, G_OFF, B_OFF));
+            home_title.setText("OFF");
         }
         home_body.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SharedPreferences.Editor editor = prefs.edit();
                 home_switch.toggle();
+                editor.putBoolean(NOTIFICATION_TOGGLE, home_switch.isChecked());
+                editor.apply();
                 TextView title = (TextView) findViewById(R.id.home_title);
                 change_background(home_switch.isChecked());
                 if (home_switch.isChecked()) {
@@ -72,6 +90,18 @@ public class Home extends AppCompatActivity {
             }
         });
     }
+
+    public void toggle_notification() {
+        final SharedPreferences prefs = getSharedPreferences(APPLICATION_PREFERENCES, MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(NOTIFICATION_TOGGLE, !prefs.getBoolean(NOTIFICATION_TOGGLE, false));
+    }
+
+    public boolean get_notification_state() {
+        final SharedPreferences prefs = getSharedPreferences(APPLICATION_PREFERENCES, MODE_PRIVATE);
+        return prefs.getBoolean(NOTIFICATION_TOGGLE, false);
+    }
+
 
     public void change_background(final boolean toggle_mode) {
 
