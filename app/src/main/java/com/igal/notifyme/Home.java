@@ -1,5 +1,8 @@
 package com.igal.notifyme;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -7,12 +10,19 @@ import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.NotificationCompat;
 import android.view.View;
 import android.widget.RelativeLayout;
+import android.widget.RemoteViews;
 import android.widget.Switch;
 import android.widget.TextView;
 
 public class Home extends AppCompatActivity {
+    /*
+    notifications tutorial:
+    https://www.youtube.com/watch?v=ToUR9i4Smfw&spfreload=10
+    */
+
     public static final int MY_PERMISSION_REQUEST_LOCATION = 1;
     public static final String APPLICATION_PREFERENCES = "application_preferences";
     public static final String FIRST_TIME_RUN = "First_time_run";
@@ -24,6 +34,12 @@ public class Home extends AppCompatActivity {
     TextView home_title;
     Handler handler = new Handler();
     Thread background_thread;
+
+    private NotificationCompat.Builder builder;
+    private NotificationManager notificationManager;
+    private int notification_id;
+    private RemoteViews remoteViews;
+    private Context context;
 
     // GREEN -  #66BB6A
     private int R_ON = 102;
@@ -90,6 +106,31 @@ public class Home extends AppCompatActivity {
                 }
             }
         });
+
+
+        context = this;
+        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        remoteViews = new RemoteViews(getPackageName(), R.layout.custom_notification);
+
+        remoteViews.setImageViewResource(R.id.notif_icon, R.mipmap.ic_launcher);
+        remoteViews.setTextViewText(R.id.notif_name, "The name");
+        remoteViews.setTextViewText(R.id.notif_value, "The value");
+
+        notification_id = (int) System.currentTimeMillis();// generate a random id
+
+        // when the notification has been clicked, this will open the following...`
+        Intent notification_intent = new Intent(context, Home.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notification_intent, 0);
+
+        builder = new NotificationCompat.Builder(context);
+        builder.setSmallIcon(R.mipmap.ic_launcher)
+                .setAutoCancel(true)
+                .setCustomBigContentView(remoteViews)
+                .setContentIntent(pendingIntent);
+
+        notificationManager.notify(notification_id, builder.build());
+
+
     }
 
     public void toggle_notification() {
