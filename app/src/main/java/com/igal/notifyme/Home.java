@@ -48,6 +48,7 @@ public class Home extends AppCompatActivity {
             SharedPreferences.Editor editor = prefs.edit();
             toggle_notification();
             editor.putBoolean(FIRST_TIME_RUN, false);
+            Settings.initiate_settings_preferences(editor);
             editor.apply();// apply the changes
         }
 
